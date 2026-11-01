@@ -81,6 +81,17 @@ class MatcherTests(unittest.TestCase):
     def test_wrong_location(self):
         self.assertIsNone(self.m.score(job("DevOps Engineer", "New York, USA")))
 
+    def test_israel_next_to_cities_means_only_israel(self):
+        m = filters.Matcher({**SEARCH, "locations": ["israel", "tel aviv"]})
+        self.assertIsNotNone(m.score(job("DevOps Engineer", "Israel")))
+        self.assertIsNotNone(m.score(job("DevOps Engineer", "Israel (Remote)")))
+        self.assertIsNotNone(m.score(job("DevOps Engineer", "Tel Aviv, Israel")))
+        self.assertIsNone(m.score(job("DevOps Engineer", "Haifa, Israel")))
+
+    def test_israel_alone_means_anywhere_in_israel(self):
+        m = filters.Matcher({**SEARCH, "locations": ["israel"]})
+        self.assertIsNotNone(m.score(job("DevOps Engineer", "Haifa, Israel")))
+
     def test_unknown_location_default_excluded(self):
         self.assertIsNone(self.m.score(job("DevOps Engineer", "")))
 

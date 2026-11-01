@@ -64,6 +64,7 @@ def run_discover(args, cfg: dict) -> int:
 
 
 def main(argv=None) -> int:
+    sys.stdout.reconfigure(encoding="utf-8")  # Windows consoles can't print the emoji otherwise
     ap = argparse.ArgumentParser(prog="job_radar")
     ap.add_argument("--config", default="config.toml")
     ap.add_argument("--state", default="data/seen.json")

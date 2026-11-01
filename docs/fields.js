@@ -3,7 +3,7 @@
 (function (root) {
   "use strict";
 
-  const SENIOR = ["senior", "sr", "staff", "principal", "lead", "head of", "director", "manager", "architect", "vp", "expert"];
+  const SENIOR = ["senior", "sr", "staff", "principal", "lead", "leader", "head of", "director", "manager", "architect", "vp", "expert"];
   const JUNIOR = ["junior", "jr", "entry level", "entry-level", "graduate", "student", "intern", "internship"];
 
   const LEVELS = {
@@ -47,7 +47,8 @@
       titles: ["security", "cyber", "soc analyst", "penetration", "appsec", "infosec"] },
     { name: "IT / Helpdesk / Sysadmin",
       aliases: ["it", "helpdesk", "help desk", "it support", "sysadmin", "system administrator", "systems administrator", "network"],
-      titles: ["it support", "help desk", "helpdesk", "system administrator", "sysadmin", "it engineer", "it technician", "it administrator", "desktop support", "it specialist", "network engineer"] },
+      titles: ["it support", "help desk", "helpdesk", "system administrator", "sysadmin", "it engineer", "it technician", "it administrator", "desktop support", "it specialist", "network engineer",
+        "it system", "it systems", "it infrastructure", "it operations", "service desk", "technical support"] },
     { name: "Product management",
       aliases: ["product", "product manager", "product owner", "pm"],
       titles: ["product manager", "product owner", "product operations"] },

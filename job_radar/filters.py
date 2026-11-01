@@ -13,12 +13,22 @@ def _compile(words: list[str]):
     return re.compile("|".join(parts))
 
 
+def _only_israel(loc: str) -> bool:
+    """True for "Israel", "Israel (Remote)", "Israel - Hybrid"; False when a city is named."""
+    words = set(re.findall(r"[a-z]+", loc))
+    return "israel" in words and words <= {"israel", "remote", "hybrid"}
+
+
 class Matcher:
     def __init__(self, search: dict):
         self.titles = _compile(search.get("titles", []))
         self.exclude = _compile(search.get("exclude_titles", []))
         self.boost = _compile(search.get("boost_titles", []))
         self.locations = [x.lower() for x in search.get("locations", [])]
+        # "israel" next to city names means "jobs listed only as Israel", not "anywhere in Israel"
+        self.israel_only = "israel" in self.locations and any(x not in ("israel", "remote") for x in self.locations)
+        if self.israel_only:
+            self.locations.remove("israel")
         self.allow_unknown_location = bool(search.get("include_unknown_location", False))
 
     def score(self, job: Job) -> int | None:
@@ -37,7 +47,7 @@ class Matcher:
             if not loc:
                 if not self.allow_unknown_location:
                     return None
-            elif not any(x in loc for x in self.locations):
+            elif not any(x in loc for x in self.locations) and not (self.israel_only and _only_israel(loc)):
                 return None
 
         score = len(hits)

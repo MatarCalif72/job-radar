@@ -16,7 +16,13 @@
     "it administrator",
     "desktop support",
     "it specialist",
-    "network engineer"
+    "network engineer",
+    "it system",
+    "it systems",
+    "it infrastructure",
+    "it operations",
+    "service desk",
+    "technical support"
   ],
   "exclude_titles": [
     "senior",
@@ -24,6 +30,7 @@
     "staff",
     "principal",
     "lead",
+    "leader",
     "head of",
     "director",
     "manager",
@@ -54,7 +61,13 @@
     "rishon",
     "rehovot",
     "or yehuda",
-    "hod hasharon"
+    "kfar saba",
+    "raanana",
+    "ra'anana",
+    "netanya",
+    "hod hasharon",
+    "bat yam",
+    "israel"
   ],
   "skills": [],
   "include_unknown_location": false
