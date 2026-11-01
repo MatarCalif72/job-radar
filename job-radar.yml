@@ -1,0 +1,29 @@
+name: job-radar
+
+on:
+  schedule:
+    - cron: "0 5 * * 0-4"   # ~07:00-08:00 Israel time, Sunday-Thursday
+  workflow_dispatch:         # lets you run it manually from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Find new jobs and send to Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m job_radar
+      - name: Save list of sent jobs
+        run: |
+          git config user.name "job-radar"
+          git config user.email "job-radar@users.noreply.github.com"
+          git add data/seen.json
+          git diff --cached --quiet || (git commit -m "update seen jobs" && git push)
