@@ -5,6 +5,7 @@ import html
 import json
 import re
 import time
+import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
 
@@ -12,8 +13,16 @@ USER_AGENT = "job-radar/1.0 (personal job alert bot)"
 
 URLS = {
     "greenhouse": "https://boards-api.greenhouse.io/v1/boards/{slug}/jobs?content=true",
+    # Greenhouse boards hosted in the EU (best effort - not confirmed from here)
+    "greenhouse-eu": "https://boards-api.eu.greenhouse.io/v1/boards/{slug}/jobs?content=true",
     "lever": "https://api.lever.co/v0/postings/{slug}?mode=json",
     "ashby": "https://api.ashbyhq.com/posting-api/job-board/{slug}",
+}
+
+# Same boards without the long descriptions: faster, used when only checking a board exists
+LIGHT_URLS = {
+    "greenhouse": "https://boards-api.greenhouse.io/v1/boards/{slug}/jobs",
+    "greenhouse-eu": "https://boards-api.eu.greenhouse.io/v1/boards/{slug}/jobs",
 }
 
 
@@ -100,6 +109,7 @@ def parse_ashby(company: str, data: dict) -> list[Job]:
 
 PARSERS = {
     "greenhouse": parse_greenhouse,
+    "greenhouse-eu": parse_greenhouse,
     "lever": parse_lever,
     "ashby": parse_ashby,
 }
@@ -114,17 +124,24 @@ def get_json(url: str, timeout: int = 30, retries: int = 2):
             )
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 return json.load(resp)
-        except Exception as exc:  # network / HTTP / JSON errors
+        except urllib.error.HTTPError as exc:
+            if exc.code < 500:  # 404 etc.: trying again won't help
+                raise
+            last = exc
+            if attempt + 1 < retries:
+                time.sleep(2)
+        except Exception as exc:  # network / JSON errors
             last = exc
             if attempt + 1 < retries:
                 time.sleep(2)
     raise last
 
 
-def fetch(company: dict) -> list[Job]:
-    """company = {"name": ..., "ats": "greenhouse|lever|ashby", "slug": ...}"""
+def fetch(company: dict, light: bool = False) -> list[Job]:
+    """company = {"name": ..., "ats": "greenhouse|greenhouse-eu|lever|ashby", "slug": ...}"""
     ats = company["ats"].lower()
     if ats not in URLS:
         raise ValueError(f"unknown ats '{ats}' (use: {', '.join(URLS)})")
-    data = get_json(URLS[ats].format(slug=company["slug"]))
+    url = (LIGHT_URLS.get(ats) if light else None) or URLS[ats]
+    data = get_json(url.format(slug=company["slug"]))
     return PARSERS[ats](company["name"], data)

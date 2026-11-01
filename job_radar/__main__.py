@@ -8,7 +8,7 @@ import time
 import tomllib
 from datetime import date
 
-from . import filters, notify, settings, sources, store
+from . import discovery, filters, notify, settings, sources, store
 
 
 def load_config(path: str) -> dict:
@@ -39,6 +39,30 @@ def check(companies: list[dict]) -> int:
     return 1 if bad else 0
 
 
+def run_discover(args, cfg: dict) -> int:
+    """Find the job boards of every company named in the names file."""
+    names = discovery.read_names(args.names)
+    if not names:
+        print(f"No company names found in {args.names}.", file=sys.stderr)
+        return 1
+    words = cfg.get("discovery", {}).get("locations")
+    print(f"Looking for the job boards of {len(names)} companies...")
+
+    def show(name, hits):
+        if hits:
+            where = ", ".join(f"{h['ats']}:{h['slug']} ({h['israel_jobs']} jobs in Israel)" for h in hits)
+            print(f"FOUND  {name:<28} {where}")
+
+    found, missing = discovery.discover(names, israel_words=words, on_result=show)
+    merged = discovery.update_found(discovery.load_found(args.found), found)
+    discovery.save_found(args.found, merged)
+    print(f"\nFound boards for {len({h['name'] for h in found})} of {len(names)} companies; "
+          f"{len(merged)} boards saved in {args.found}.")
+    if missing:
+        print("No board found (other job system, or no Israel jobs open): " + ", ".join(missing))
+    return 0 if found else 1
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="job_radar")
     ap.add_argument("--config", default="config.toml")
@@ -46,13 +70,19 @@ def main(argv=None) -> int:
     ap.add_argument("--search", default="my_search.json", help="settings saved by the Redefine jobs page")
     ap.add_argument("--dry-run", action="store_true", help="print results, don't send or save")
     ap.add_argument("--check", action="store_true", help="test every company in the config")
+    ap.add_argument("--discover", action="store_true", help="find job boards for the names in --names")
+    ap.add_argument("--names", default="discovery_names.txt", help="company names for --discover")
+    ap.add_argument("--found", default="companies_found.json", help="boards found by --discover")
     args = ap.parse_args(argv)
 
     cfg = load_config(args.config)
+    if args.discover:
+        return run_discover(args, cfg)
     cfg, used = settings.apply_overrides(cfg, args.search)
     if used:
         print(f"Using your saved search settings ({args.search}).")
-    companies = cfg.get("companies", [])
+    companies = discovery.merge_companies(cfg.get("companies", []), discovery.load_found(args.found))
+    print(f"Watching {len(companies)} job boards.")
     if not companies:
         print("No companies in config.", file=sys.stderr)
         return 1

@@ -1,10 +1,12 @@
 import json
 import tempfile
 import unittest
+import urllib.error
 from datetime import date
 from pathlib import Path
+from unittest import mock
 
-from job_radar import filters, insights, notify, settings, sources, store
+from job_radar import discovery, filters, insights, notify, settings, sources, store
 from job_radar.sources import Job
 
 SEARCH = {
@@ -209,6 +211,93 @@ class ButtonTests(unittest.TestCase):
         p = notify.build_payload("1", "hi", "https://x.github.io/r/")
         markup = json.loads(p["reply_markup"])
         self.assertEqual(markup["inline_keyboard"][0][0]["url"], "https://x.github.io/r/")
+
+
+class DiscoveryTests(unittest.TestCase):
+    def test_slug_variants(self):
+        first, second = discovery.slug_variants("Monday.com")
+        self.assertEqual(first, ["monday"])
+        self.assertIn("mondayinc", second)
+        self.assertEqual(discovery.slug_variants("Check Point")[0], ["checkpoint", "check-point", "check"])
+        self.assertEqual(discovery.slug_variants("???"), ([], []))
+
+    def test_read_names(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "names.txt"
+            p.write_text("# header\nWiz\n\n  Snyk  # note\nwiz\n", encoding="utf-8")
+            self.assertEqual(discovery.read_names(p), ["Wiz", "Snyk"])
+        self.assertEqual(discovery.read_names("/nonexistent/names.txt"), [])
+
+    def test_starter_list_is_valid(self):
+        names = discovery.read_names(Path(__file__).parent.parent / "discovery_names.txt")
+        self.assertGreater(len(names), 50)
+
+    def test_discover_keeps_only_boards_with_israel_jobs(self):
+        boards = {
+            ("greenhouse", "wizinc"): [job("Dev", "Tel Aviv, Israel")],
+            ("lever", "cato"): [job("Dev", "Remote, USA")],  # exists, but no Israel job
+            ("ashby", "snyk"): [job("A", "London"), job("B", "Tel Aviv")],
+        }
+
+        def fake(company):
+            try:
+                return boards[(company["ats"], company["slug"])]
+            except KeyError:
+                raise RuntimeError("404")
+
+        found, missing = discovery.discover(["Wiz", "Cato", "Snyk", "Nobody"], fetcher=fake, workers=2)
+        got = {(f["name"], f["ats"], f["slug"], f["israel_jobs"]) for f in found}
+        self.assertEqual(got, {("Wiz", "greenhouse", "wizinc", 1), ("Snyk", "ashby", "snyk", 1)})
+        self.assertEqual(missing, ["Cato", "Nobody"])
+
+    def test_merge_and_update(self):
+        cfg = [{"name": "Snyk", "ats": "ashby", "slug": "snyk"}]
+        found = [{"name": "Snyk", "ats": "Ashby", "slug": "SNYK"},
+                 {"name": "Wiz", "ats": "greenhouse", "slug": "wizinc"}]
+        merged = discovery.merge_companies(cfg, found)
+        self.assertEqual([c["name"] for c in merged], ["Snyk", "Wiz"])  # duplicate dropped
+
+        old = [{"name": "Wiz", "ats": "greenhouse", "slug": "old"},
+               {"name": "Keep", "ats": "lever", "slug": "keep"}]
+        new = [{"name": "Wiz", "ats": "greenhouse", "slug": "wizinc"}]
+        updated = discovery.update_found(old, new)
+        self.assertEqual({(c["name"], c["slug"]) for c in updated}, {("Wiz", "wizinc"), ("Keep", "keep")})
+
+    def test_save_and_load(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "found.json"
+            self.assertEqual(discovery.load_found(p), [])
+            discovery.save_found(p, [{"name": "B", "ats": "lever", "slug": "b"},
+                                     {"name": "A", "ats": "ashby", "slug": "a"}], date(2026, 11, 1))
+            self.assertEqual([c["name"] for c in discovery.load_found(p)], ["A", "B"])
+            p.write_text("{broken", encoding="utf-8")
+            self.assertEqual(discovery.load_found(p), [])  # bad file is ignored
+
+
+class HttpTests(unittest.TestCase):
+    def _err(self, code):
+        return urllib.error.HTTPError("http://x", code, "err", {}, None)
+
+    def test_404_is_not_retried(self):
+        with mock.patch("job_radar.sources.urllib.request.urlopen", side_effect=self._err(404)) as m, \
+                mock.patch("job_radar.sources.time.sleep"):
+            with self.assertRaises(urllib.error.HTTPError):
+                sources.get_json("http://x")
+        self.assertEqual(m.call_count, 1)
+
+    def test_server_error_is_retried(self):
+        with mock.patch("job_radar.sources.urllib.request.urlopen", side_effect=self._err(503)) as m, \
+                mock.patch("job_radar.sources.time.sleep"):
+            with self.assertRaises(urllib.error.HTTPError):
+                sources.get_json("http://x")
+        self.assertEqual(m.call_count, 2)
+
+    def test_light_url_has_no_descriptions(self):
+        with mock.patch("job_radar.sources.get_json", return_value={"jobs": []}) as m:
+            sources.fetch({"name": "A", "ats": "greenhouse", "slug": "a"}, light=True)
+            self.assertNotIn("content=true", m.call_args[0][0])
+            sources.fetch({"name": "A", "ats": "greenhouse", "slug": "a"})
+            self.assertIn("content=true", m.call_args[0][0])
 
 
 class ConfigTests(unittest.TestCase):

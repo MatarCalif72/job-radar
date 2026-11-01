@@ -1,0 +1,131 @@
+# Companies to look for. One name per line, lines starting with # are ignored.
+# The "discover-companies" workflow finds each company's job board by itself.
+# Add your own names at the bottom, then run that workflow again.
+
+# --- Cyber security ---
+Wiz
+Snyk
+Apiiro
+Check Point
+CyberArk
+SentinelOne
+Cato Networks
+Armis
+Orca Security
+Aqua Security
+Axonius
+Claroty
+Transmit Security
+Island
+Cyera
+Zenity
+Upwind
+Noma Security
+Torq
+Pentera
+Varonis
+Imperva
+Tufin
+Cellebrite
+Forter
+Silverfort
+Cybereason
+SafeBreach
+Rezilion
+Dream Security
+Talon Cyber Security
+Hunters
+Cycode
+Legit Security
+Checkmarx
+Salt Security
+Sentra
+Palo Alto Networks
+
+# --- Fintech and insurance ---
+Pagaya
+Payoneer
+Riskified
+Melio
+Rapyd
+Tipalti
+Papaya Global
+Bluevine
+Nayax
+Global-e
+Lemonade
+Hippo
+Next Insurance
+Fireblocks
+Nuvei
+Zesty
+Justt
+Fundbox
+
+# --- Software, data and infrastructure ---
+monday.com
+Wix
+JFrog
+Gong
+Similarweb
+Yotpo
+Lightricks
+WalkMe
+AppsFlyer
+Taboola
+Outbrain
+Kaltura
+Sisense
+HiBob
+Lusha
+Elementor
+Bringg
+Placer.ai
+Via
+Verbit
+Gett
+Cloudinary
+Optimove
+Guidde
+Connecteam
+Redis
+Spot
+Komodor
+Lumigo
+Coralogix
+Granulate
+Bigabid
+Trigo
+Pixellot
+Tabnine
+Qodo
+Skai
+Perion
+Sapiens
+Cognyte
+NICE
+Amdocs
+
+# --- AI and hardware ---
+Aidoc
+Hyro
+AI21 Labs
+Decart
+Pecan AI
+Run:ai
+NeuroBlade
+Hailo
+Mobileye
+Nanox
+Ceva
+Pliops
+
+# --- Gaming ---
+Playtika
+Moon Active
+Plarium
+Unity
+ironSource
+Papaya Gaming
+
+# --- Your own additions ---

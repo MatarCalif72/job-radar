@@ -26,6 +26,18 @@ junior/student flag), the link, and a **⚙️ Redefine jobs** button.
 5. **Turn on the Redefine page:** repo Settings → Pages → *Deploy from a branch* → `main` → folder `/docs`.
    Its address is `https://<your-name>.github.io/<repo>/` and the Telegram button opens it.
 
+## Finding more companies (no job-board names needed)
+
+1. Put company names in `discovery_names.txt`, one per line. A starter list of ~100 Israeli tech companies is included.
+2. In GitHub: Actions → **discover-companies** → Run workflow (it also runs weekly by itself).
+3. It tries each name on Greenhouse, Lever and Ashby, and keeps a board only if it lists at least one job in Israel.
+   Results go to `companies_found.json`, and the bot reads them automatically, together with the list in `config.toml`.
+4. The log shows `FOUND` lines, and a list of names with no board. Those use another job system
+   (Comeet, Workable, their own site) or have no Israel jobs open. They can't be read yet.
+
+Names that don't match any board are skipped quietly, so a long messy list is fine.
+To try it on your computer: `python -m job_radar --discover`.
+
 ## Changing what you look for ("Redefine jobs")
 
 Tap **⚙️ Redefine jobs** under any message. Answer four questions:

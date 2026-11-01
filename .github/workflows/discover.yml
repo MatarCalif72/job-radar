@@ -1,0 +1,30 @@
+name: discover-companies
+
+on:
+  schedule:
+    - cron: "17 3 * * 0"     # once a week, Sunday 03:17 (UTC)
+  workflow_dispatch:         # lets you run it manually from the Actions tab
+
+permissions:
+  contents: write
+
+concurrency:
+  group: job-radar           # don't run at the same time as the job-radar workflow
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Find job boards for the names in discovery_names.txt
+        run: python -m job_radar --discover
+      - name: Save found boards
+        run: |
+          git config user.name "job-radar"
+          git config user.email "job-radar@users.noreply.github.com"
+          git add companies_found.json
+          git diff --cached --quiet || (git commit -m "update found companies" && git pull --rebase origin "$GITHUB_REF_NAME" && git push)
