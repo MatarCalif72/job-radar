@@ -1,15 +1,17 @@
-"""Fetch open jobs from public ATS job-board APIs (Greenhouse, Lever, Ashby)."""
+"""Fetch open jobs (with descriptions) from public ATS job-board APIs."""
 from __future__ import annotations
 
+import html
 import json
+import re
 import time
 import urllib.request
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 USER_AGENT = "job-radar/1.0 (personal job alert bot)"
 
 URLS = {
-    "greenhouse": "https://boards-api.greenhouse.io/v1/boards/{slug}/jobs",
+    "greenhouse": "https://boards-api.greenhouse.io/v1/boards/{slug}/jobs?content=true",
     "lever": "https://api.lever.co/v0/postings/{slug}?mode=json",
     "ashby": "https://api.ashbyhq.com/posting-api/job-board/{slug}",
 }
@@ -23,10 +25,26 @@ class Job:
     title: str
     location: str
     url: str
+    description: str = field(default="", compare=False, repr=False)  # plain text
 
     @property
     def key(self) -> str:
         return f"{self.source}:{self.company}:{self.id}"
+
+
+def html_to_text(s: str | None) -> str:
+    """Turn (possibly escaped) HTML into readable plain text with line breaks."""
+    if not s:
+        return ""
+    s = html.unescape(s)  # Greenhouse sends escaped HTML
+    s = re.sub(r"(?is)<\s*(script|style)[^>]*>.*?<\s*/\s*\1\s*>", " ", s)
+    s = re.sub(r"(?i)<\s*li[^>]*>", "\n- ", s)
+    s = re.sub(r"(?i)<\s*br\s*/?\s*>|<\s*/\s*(p|div|h[1-6]|ul|ol|li)\s*>", "\n", s)
+    s = re.sub(r"<[^>]+>", " ", s)
+    s = html.unescape(s)
+    s = re.sub(r"[ \t\r\f\v ]+", " ", s)
+    s = "\n".join(line.strip() for line in s.split("\n"))
+    return re.sub(r"\n{3,}", "\n\n", s).strip()
 
 
 def parse_greenhouse(company: str, data: dict) -> list[Job]:
@@ -38,9 +56,18 @@ def parse_greenhouse(company: str, data: dict) -> list[Job]:
             j.get("title", ""),
             (j.get("location") or {}).get("name", "") or "",
             j.get("absolute_url", ""),
+            html_to_text(j.get("content")),
         )
         for j in data.get("jobs", [])
     ]
+
+
+def _lever_text(j: dict) -> str:
+    parts = [j.get("descriptionPlain") or html_to_text(j.get("description"))]
+    for block in j.get("lists") or []:
+        parts.append(f"{block.get('text', '')}\n{html_to_text(block.get('content'))}")
+    parts.append(j.get("additionalPlain") or html_to_text(j.get("additional")))
+    return "\n\n".join(p for p in parts if p and p.strip())
 
 
 def parse_lever(company: str, data: list) -> list[Job]:
@@ -52,6 +79,7 @@ def parse_lever(company: str, data: list) -> list[Job]:
             j.get("text", ""),
             (j.get("categories") or {}).get("location") or "",
             j.get("hostedUrl", ""),
+            _lever_text(j),
         )
         for j in data
     ]
@@ -63,8 +91,9 @@ def parse_ashby(company: str, data: dict) -> list[Job]:
         location = j.get("location") or ""
         if j.get("isRemote") and "remote" not in location.lower():
             location = f"{location} (Remote)".strip()
+        text = j.get("descriptionPlain") or html_to_text(j.get("descriptionHtml"))
         jobs.append(
-            Job("ashby", company, str(j["id"]), j.get("title", ""), location, j.get("jobUrl", ""))
+            Job("ashby", company, str(j["id"]), j.get("title", ""), location, j.get("jobUrl", ""), text)
         )
     return jobs
 
@@ -76,7 +105,7 @@ PARSERS = {
 }
 
 
-def get_json(url: str, timeout: int = 20, retries: int = 2):
+def get_json(url: str, timeout: int = 30, retries: int = 2):
     last = None
     for attempt in range(retries):
         try:

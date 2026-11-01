@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Redefine jobs</title>
+<style>
+  :root {
+    --bg:#f6f5f1; --card:#ffffff; --text:#1d1d1b; --muted:#66665f; --line:#e2e1da;
+    --accent:#2a6df4; --accent-text:#ffffff; --chip:#e9effd; --chip-text:#1c3f94;
+    --ok:#15803d; --warn:#b45309; --bad:#b91c1c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#141413; --card:#1e1e1c; --text:#ececea; --muted:#9a9a93; --line:#34342f;
+      --accent:#6c9bff; --accent-text:#0d1b3d; --chip:#233150; --chip-text:#c6d6ff;
+      --ok:#5fd08a; --warn:#f0b14a; --bad:#f08a8a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  main { max-width:640px; margin:0 auto; padding:20px 16px 48px; }
+  h1 { font-size:24px; margin:8px 0 4px; }
+  h2 { font-size:17px; margin:0 0 10px; }
+  .sub { color:var(--muted); margin:0 0 18px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:14px; }
+  label.lbl { display:block; font-size:13px; color:var(--muted); margin:14px 0 6px; }
+  input[type=text], input[type=password] {
+    width:100%; padding:11px 12px; font:inherit; color:var(--text); background:var(--bg);
+    border:1px solid var(--line); border-radius:10px; }
+  input:focus, button:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+  .note { font-size:13px; color:var(--muted); margin:8px 0 0; min-height:1em; }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .chip { display:inline-flex; align-items:center; gap:4px; background:var(--chip); color:var(--chip-text);
+          border-radius:999px; padding:4px 6px 4px 12px; font-size:14px; }
+  .chip .x { border:0; background:transparent; color:inherit; font-size:16px; line-height:1; cursor:pointer;
+             padding:2px 6px; border-radius:999px; }
+  input.add { width:90px; flex:1 1 90px; min-width:90px; padding:6px 8px; font-size:14px;
+              border:1px dashed var(--line); border-radius:999px; background:transparent; color:var(--text); }
+  .pills { display:flex; flex-wrap:wrap; gap:8px; }
+  .pill { border:1px solid var(--line); border-radius:999px; padding:8px 14px; cursor:pointer; user-select:none; }
+  .pill.on { background:var(--accent); border-color:var(--accent); color:var(--accent-text); }
+  .pill input { position:absolute; opacity:0; pointer-events:none; }
+  .pill:focus-within { outline:2px solid var(--accent); outline-offset:2px; }
+  .checks { display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:10px; font-size:14px; }
+  .checks label { display:flex; gap:6px; align-items:center; cursor:pointer; }
+  .actions { display:flex; flex-wrap:wrap; gap:10px; margin:18px 0 8px; }
+  button.btn { font:inherit; padding:11px 18px; border-radius:10px; border:1px solid var(--line);
+               background:var(--card); color:var(--text); cursor:pointer; }
+  button.primary { background:var(--accent); border-color:var(--accent); color:var(--accent-text); font-weight:600; }
+  #status { min-height:1.4em; margin:6px 0 0; font-size:14px; }
+  #status.ok { color:var(--ok); } #status.warn { color:var(--warn); } #status.bad { color:var(--bad); }
+  details summary { cursor:pointer; font-weight:600; }
+  details ol { padding-left:20px; color:var(--muted); font-size:14px; }
+  textarea { width:100%; min-height:160px; font:13px/1.4 ui-monospace,Menlo,Consolas,monospace; margin-top:10px;
+             background:var(--bg); color:var(--text); border:1px solid var(--line); border-radius:10px; padding:10px; }
+  .row { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+  .row input { flex:1 1 200px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Redefine jobs</h1>
+  <p class="sub">Answer four quick questions. The bot fills in the details; you can edit anything.</p>
+
+  <section class="card">
+    <h2>1 · What do you want to work in?</h2>
+    <input type="text" id="field" placeholder="e.g. QA, DevOps, data analyst" autocomplete="off" aria-label="Field of work">
+    <p class="note" id="fieldNote"></p>
+    <label class="lbl">Job titles I'll look for</label>
+    <div class="chips" id="chips-titles"></div>
+  </section>
+
+  <section class="card">
+    <h2>2 · What level?</h2>
+    <div class="pills" id="levels" role="radiogroup" aria-label="Level"></div>
+    <label class="lbl">Rank these higher</label>
+    <div class="chips" id="chips-boost"></div>
+    <label class="lbl">Skip titles containing</label>
+    <div class="chips" id="chips-exclude"></div>
+  </section>
+
+  <section class="card">
+    <h2>3 · Where?</h2>
+    <input type="text" id="loc" value="Tel Aviv" placeholder="e.g. Tel Aviv, Haifa, Israel, London" autocomplete="off" aria-label="Location">
+    <div class="checks">
+      <label><input type="checkbox" id="incIsrael" checked> Also jobs listed only as "Israel"</label>
+      <label><input type="checkbox" id="remote"> Remote</label>
+    </div>
+    <label class="lbl">Places I'll accept</label>
+    <div class="chips" id="chips-locations"></div>
+  </section>
+
+  <section class="card">
+    <h2>4 · Your skills</h2>
+    <input type="text" id="skills" placeholder="e.g. Python, Docker, AWS" autocomplete="off" aria-label="Skills">
+    <p class="note">Used for the "Matches your skills" line in each job message.</p>
+    <div class="chips" id="chips-skills"></div>
+  </section>
+
+  <div class="actions">
+    <button class="btn primary" id="save" type="button">Save</button>
+    <button class="btn" id="saveRun" type="button">Save &amp; run now</button>
+    <button class="btn" id="copy" type="button">Copy JSON</button>
+  </div>
+  <p id="status" role="status"></p>
+  <textarea id="json" readonly hidden aria-label="Settings JSON"></textarea>
+
+  <details class="card" id="connect">
+    <summary>Connect to GitHub (one time)</summary>
+    <ol>
+      <li>GitHub → Settings → Developer settings → Fine-grained tokens → Generate new token.</li>
+      <li>Repository access: only your job-radar repo.</li>
+      <li>Permissions: <b>Contents</b> and <b>Actions</b>, both Read and write.</li>
+      <li>Paste it below. It is stored only in this browser.</li>
+    </ol>
+    <div class="row">
+      <input type="text" id="repo" placeholder="your-name/job-radar" aria-label="Repository">
+      <input type="password" id="token" placeholder="token" autocomplete="off" aria-label="Token">
+    </div>
+    <div class="row">
+      <button class="btn" id="connectBtn" type="button">Connect</button>
+      <button class="btn" id="disconnectBtn" type="button">Disconnect</button>
+    </div>
+    <p class="note" id="connNote"></p>
+  </details>
+</main>
+
+<script src="fields.js"></script>
+<script>
+(function () {
+  "use strict";
+  const J = window.JobRadar;
+  const $ = (id) => document.getElementById(id);
+  const CHIPS = [["titles", true], ["boost", true], ["exclude", true], ["locations", true], ["skills", false]];
+
+  const state = {
+    field: "", level: "junior", titles: [], boost: [], exclude: [], locations: [], skills: [],
+    locText: "Tel Aviv", includeIsrael: true, remote: false,
+  };
+  let focusKey = null;
+
+  // ---- small helpers -------------------------------------------------
+  const store = {
+    get(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+    del(k) { try { localStorage.removeItem(k); } catch (e) {} },
+  };
+  const b64e = (s) => { const b = new TextEncoder().encode(s); let t = ""; b.forEach((c) => (t += String.fromCharCode(c))); return btoa(t); };
+  const b64d = (s) => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, "")), (c) => c.charCodeAt(0)));
+  function setStatus(msg, kind) { const s = $("status"); s.textContent = msg; s.className = kind || ""; }
+
+  // ---- chips ---------------------------------------------------------
+  function renderChips(key, lower) {
+    const box = $("chips-" + key);
+    box.textContent = "";
+    state[key].forEach((v, i) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.append(document.createTextNode(v));
+      const x = document.createElement("button");
+      x.type = "button"; x.className = "x"; x.textContent = "×"; x.setAttribute("aria-label", "Remove " + v);
+      x.addEventListener("click", () => { state[key].splice(i, 1); renderAll(); });
+      chip.append(x);
+      box.append(chip);
+    });
+    const inp = document.createElement("input");
+    inp.className = "add"; inp.placeholder = "+ add"; inp.setAttribute("aria-label", "Add to " + key);
+    const add = () => {
+      const raw = inp.value.trim();
+      const v = lower ? raw.toLowerCase() : raw;
+      if (v && !state[key].includes(v)) { state[key].push(v); focusKey = key; renderAll(); } else { inp.value = ""; }
+    };
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); add(); } });
+    inp.addEventListener("change", add);
+    box.append(inp);
+  }
+  function renderAll() {
+    CHIPS.forEach(([k, lower]) => renderChips(k, lower));
+    if (focusKey) { const el = document.querySelector("#chips-" + focusKey + " input"); if (el) el.focus(); focusKey = null; }
+  }
+
+  function renderLevels() {
+    const box = $("levels");
+    box.textContent = "";
+    Object.entries(J.LEVELS).forEach(([key, L]) => {
+      const lab = document.createElement("label");
+      lab.className = "pill" + (state.level === key ? " on" : "");
+      const r = document.createElement("input");
+      r.type = "radio"; r.name = "level"; r.value = key; r.checked = state.level === key;
+      r.addEventListener("change", () => {
+        state.level = key;
+        const l = J.levelLists(key);
+        state.boost = l.boost; state.exclude = l.exclude;
+        renderLevels(); renderAll();
+      });
+      lab.append(r, document.createTextNode(L.label));
+      box.append(lab);
+    });
+  }
+
+  // ---- auto-fill -----------------------------------------------------
+  let timer;
+  $("field").addEventListener("input", (e) => {
+    state.field = e.target.value;
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const r = J.suggestTitles(state.field);
+      state.titles = r.titles;
+      let note = "";
+      if (r.matched.length) note = "Recognised: " + r.matched.join(", ") + ". Edit the titles below if you like.";
+      if (r.unknown.length) note += (note ? " " : "") + "New to me: \"" + r.unknown.join("\", \"") + "\" - I used your words. Add related titles below.";
+      $("fieldNote").textContent = note;
+      renderAll();
+    }, 250);
+  });
+
+  function updateLocations() {
+    state.locText = $("loc").value;
+    state.includeIsrael = $("incIsrael").checked;
+    state.remote = $("remote").checked;
+    state.locations = J.expandLocations(state.locText, { includeIsrael: state.includeIsrael, remote: state.remote });
+    renderAll();
+  }
+  ["loc", "incIsrael", "remote"].forEach((id) => $(id).addEventListener(id === "loc" ? "input" : "change", updateLocations));
+
+  $("skills").addEventListener("input", (e) => { state.skills = J.splitList(e.target.value); renderAll(); });
+
+  function loadFromSettings(s) {
+    state.field = s.field || "";
+    state.level = J.LEVELS[s.level] ? s.level : "junior";
+    state.titles = (s.titles || []).slice();
+    state.boost = (s.boost_titles || []).slice();
+    state.exclude = (s.exclude_titles || []).slice();
+    state.locations = (s.locations || []).slice();
+    state.skills = (s.skills || []).slice();
+    state.locText = s.location_text || state.locText;
+    state.includeIsrael = s.include_israel !== false;
+    state.remote = !!s.remote;
+    $("field").value = state.field; $("loc").value = state.locText;
+    $("incIsrael").checked = state.includeIsrael; $("remote").checked = state.remote;
+    $("skills").value = state.skills.join(", ");
+    renderLevels(); renderAll();
+  }
+
+  // ---- GitHub --------------------------------------------------------
+  const cfg = () => ({ repo: store.get("jr_repo"), token: store.get("jr_token") });
+  const connected = () => { const c = cfg(); return !!(c.repo && c.token); };
+
+  function gh(path, opts) {
+    opts = opts || {};
+    return fetch("https://api.github.com" + path, Object.assign({}, opts, {
+      headers: Object.assign({
+        "Accept": "application/vnd.github+json",
+        "Authorization": "Bearer " + cfg().token,
+        "X-GitHub-Api-Version": "2022-11-28",
+      }, opts.headers || {}),
+    }));
+  }
+  async function ghError(r) {
+    let m = ""; try { m = (await r.json()).message || ""; } catch (e) {}
+    const hint = [401, 403, 404].includes(r.status) ? " Check the repo name and that the token has Contents + Actions (read & write)." : "";
+    return new Error(r.status + " " + m + "." + hint);
+  }
+
+  async function loadRemote() {
+    try {
+      const r = await gh("/repos/" + cfg().repo + "/contents/my_search.json");
+      if (r.ok) {
+        loadFromSettings(JSON.parse(b64d((await r.json()).content)));
+        setStatus("Loaded your current settings.", "ok");
+      } else if (r.status === 404) {
+        setStatus("No saved settings yet. Answer the questions above.", "");
+      } else { throw await ghError(r); }
+    } catch (e) { setStatus("Could not load settings: " + e.message, "bad"); }
+  }
+
+  async function save(runNow) {
+    const s = J.buildSettings(state);
+    const problems = J.validate(s);
+    if (problems.length) { setStatus(problems.join(" "), "warn"); return; }
+    if (!connected()) { setStatus("Connect GitHub first (section below), or use Copy JSON.", "warn"); $("connect").open = true; return; }
+    setStatus("Saving…");
+    try {
+      const repo = cfg().repo, path = "/repos/" + repo + "/contents/my_search.json";
+      let sha;
+      const cur = await gh(path);
+      if (cur.ok) { sha = (await cur.json()).sha; } else if (cur.status !== 404) { throw await ghError(cur); }
+      const put = await gh(path, { method: "PUT", body: JSON.stringify({
+        message: "Update job search (Redefine jobs page)",
+        content: b64e(JSON.stringify(s, null, 2) + "\n"), sha: sha }) });
+      if (!put.ok) throw await ghError(put);
+      if (runNow) {
+        const info = await (await gh("/repos/" + repo)).json();
+        const d = await gh("/repos/" + repo + "/actions/workflows/job-radar.yml/dispatches", {
+          method: "POST", body: JSON.stringify({ ref: info.default_branch }) });
+        if (!d.ok) throw await ghError(d);
+        setStatus("Saved ✓ and started a run. New jobs reach Telegram in a minute or two.", "ok");
+      } else {
+        setStatus("Saved ✓ It applies from the next run (every 2 hours).", "ok");
+      }
+    } catch (e) { setStatus("Failed: " + e.message, "bad"); }
+  }
+
+  $("save").addEventListener("click", () => save(false));
+  $("saveRun").addEventListener("click", () => save(true));
+  $("copy").addEventListener("click", async () => {
+    const text = JSON.stringify(J.buildSettings(state), null, 2) + "\n";
+    const box = $("json"); box.value = text; box.hidden = false;
+    try { await navigator.clipboard.writeText(text); setStatus("Copied. Paste it into my_search.json in your repo.", "ok"); }
+    catch (e) { box.select(); setStatus("Copy it from the box below, into my_search.json in your repo.", "warn"); }
+  });
+
+  $("connectBtn").addEventListener("click", async () => {
+    const repo = $("repo").value.trim(), tok = $("token").value.trim();
+    if (repo) store.set("jr_repo", repo);
+    if (tok) store.set("jr_token", tok);
+    if (!connected()) { $("connNote").textContent = "Enter the repo (owner/name) and a token."; return; }
+    $("token").value = "";
+    $("connNote").textContent = "Checking…";
+    try {
+      const r = await gh("/repos/" + cfg().repo);
+      if (!r.ok) throw await ghError(r);
+      $("connNote").textContent = "Connected to " + cfg().repo + " ✓ (token saved in this browser only).";
+      await loadRemote();
+    } catch (e) { $("connNote").textContent = "Could not connect: " + e.message; }
+  });
+  $("disconnectBtn").addEventListener("click", () => {
+    store.del("jr_token"); $("connNote").textContent = "Disconnected. The token was removed from this browser.";
+  });
+
+  // ---- start ---------------------------------------------------------
+  (function init() {
+    const m = location.hostname.match(/^(.+)\.github\.io$/);
+    const seg = location.pathname.split("/").filter(Boolean)[0];
+    $("repo").value = store.get("jr_repo") || (m && seg ? m[1] + "/" + seg : "");
+    const l = J.levelLists(state.level);
+    state.boost = l.boost; state.exclude = l.exclude;
+    state.locations = J.expandLocations(state.locText, { includeIsrael: true });
+    renderLevels(); renderAll();
+    if (connected()) { $("connNote").textContent = "Connected to " + cfg().repo + "."; loadRemote(); }
+    else { $("connect").open = true; }
+  })();
+})();
+</script>
+</body>
+</html>

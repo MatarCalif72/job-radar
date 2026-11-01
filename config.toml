@@ -10,7 +10,7 @@ titles = [
 # Skip titles containing any of these
 exclude_titles = [
   "senior", "sr", "staff", "principal", "lead", "head of", "director",
-  "manager", "architect", "vp",
+  "manager", "architect", "vp", "expert",
 ]
 # Titles with these words rank higher
 boost_titles = ["junior", "entry level", "entry-level", "graduate", "intern", "student", "jr"]
@@ -21,14 +21,27 @@ locations = [
 ]
 include_unknown_location = false
 
+# Your skills: jobs that mention these get a "Matches your skills" line.
+# Use the names the bot knows (AWS, Docker, Kubernetes, Jenkins, Java, C#, Python,
+# JavaScript, TypeScript, Node.js, React, SQL, Linux, Terraform ...).
+[profile]
+skills = ["JavaScript", "React", "Node.js", "Java", "C#", "AWS", "Docker", "Kubernetes", "Jenkins", "CI/CD"]
+
 [notify]
-max_jobs_per_run = 30
+max_jobs_per_run = 20   # per run (every 2 hours); the rest wait for the next run
+delay_seconds = 1.2     # pause between messages (Telegram limit)
+settings_button = true  # "Redefine jobs" button under each message (opens docs/index.html on GitHub Pages)
+# settings_url = ""     # only needed if the page lives somewhere other than GitHub Pages
+
+# NOTE: the Redefine jobs page saves your choices to my_search.json.
+# When that file exists it overrides [search] and [profile] above.
 
 # ---- Companies to watch ----
 # ats = "greenhouse" | "lever" | "ashby"
 # slug = the name in the company's job-board URL, e.g.
-#   boards.greenhouse.io/<slug>   jobs.lever.co/<slug>   jobs.ashbyhq.com/<slug
-
+#   boards.greenhouse.io/<slug>   jobs.lever.co/<slug>   jobs.ashbyhq.com/<slug>
+# Names taken from public job-board links. Snyk is confirmed working; the others
+# are unconfirmed - the Actions log shows "404" for any name that's wrong.
 [[companies]]
 name = "Snyk"
 ats = "ashby"
