@@ -27,19 +27,29 @@ max_jobs_per_run = 30
 # ---- Companies to watch ----
 # ats = "greenhouse" | "lever" | "ashby"
 # slug = the name in the company's job-board URL, e.g.
-#   boards.greenhouse.io/<slug>   jobs.lever.co/<slug>   jobs.ashbyhq.com/<slug>
-# These are EXAMPLES - run `python -m job_radar --check` and fix/replace as needed.
-[[companies]]
-name = "Wiz"
-ats = "greenhouse"
-slug = "wiz"
-
-[[companies]]
-name = "Lightricks"
-ats = "lever"
-slug = "lightricks"
+#   boards.greenhouse.io/<slug>   jobs.lever.co/<slug>   jobs.ashbyhq.com/<slug
 
 [[companies]]
 name = "Snyk"
 ats = "ashby"
 slug = "snyk"
+
+[[companies]]
+name = "Wiz"
+ats = "greenhouse"
+slug = "wizinc"
+
+[[companies]]
+name = "Apiiro"
+ats = "greenhouse"
+slug = "apiiro"
+
+[[companies]]
+name = "Pagaya"
+ats = "greenhouse"
+slug = "pagayais"
+
+[[companies]]
+name = "traildsoftware"
+ats = "lever"
+slug = "traildsoftware"
