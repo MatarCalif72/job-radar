@@ -1,0 +1,45 @@
+# ---- What you're looking for ----
+[search]
+# A job title must contain at least one of these
+titles = [
+  "devops", "dev ops", "sre", "site reliability", "platform engineer",
+  "cloud engineer", "infrastructure engineer", "systems engineer",
+  "backend", "back-end", "back end", "software engineer", "software developer",
+  "full stack", "fullstack", "full-stack", "it engineer", "support engineer",
+]
+# Skip titles containing any of these
+exclude_titles = [
+  "senior", "sr", "staff", "principal", "lead", "head of", "director",
+  "manager", "architect", "vp",
+]
+# Titles with these words rank higher
+boost_titles = ["junior", "entry level", "entry-level", "graduate", "intern", "student", "jr"]
+# Job location must contain one of these (add "remote" if you want remote roles)
+locations = [
+  "israel", "tel aviv", "tel-aviv", "ramat gan", "givatayim", "herzliya",
+  "petah tikva", "petach tikva", "holon", "bnei brak", "rehovot", "rishon",
+]
+include_unknown_location = false
+
+[notify]
+max_jobs_per_run = 30
+
+# ---- Companies to watch ----
+# ats = "greenhouse" | "lever" | "ashby"
+# slug = the name in the company's job-board URL, e.g.
+#   boards.greenhouse.io/<slug>   jobs.lever.co/<slug>   jobs.ashbyhq.com/<slug>
+# These are EXAMPLES - run `python -m job_radar --check` and fix/replace as needed.
+[[companies]]
+name = "Wiz"
+ats = "greenhouse"
+slug = "wiz"
+
+[[companies]]
+name = "Lightricks"
+ats = "lever"
+slug = "lightricks"
+
+[[companies]]
+name = "Snyk"
+ats = "ashby"
+slug = "snyk"
