@@ -1,0 +1,208 @@
+{
+ "updated": "2026-11-01",
+ "companies": [
+  {
+   "name": "Apiiro",
+   "ats": "greenhouse",
+   "slug": "apiiro",
+   "jobs": 5,
+   "israel_jobs": 4
+  },
+  {
+   "name": "AppsFlyer",
+   "ats": "greenhouse",
+   "slug": "appsflyer",
+   "jobs": 50,
+   "israel_jobs": 23
+  },
+  {
+   "name": "Axonius",
+   "ats": "greenhouse",
+   "slug": "axonius",
+   "jobs": 22,
+   "israel_jobs": 6
+  },
+  {
+   "name": "Bluevine",
+   "ats": "greenhouse",
+   "slug": "bluevineisrael",
+   "jobs": 3,
+   "israel_jobs": 3
+  },
+  {
+   "name": "Cato Networks",
+   "ats": "greenhouse",
+   "slug": "catonetworks",
+   "jobs": 106,
+   "israel_jobs": 32
+  },
+  {
+   "name": "Cloudinary",
+   "ats": "lever",
+   "slug": "cloudinary",
+   "jobs": 11,
+   "israel_jobs": 7
+  },
+  {
+   "name": "Connecteam",
+   "ats": "greenhouse",
+   "slug": "connecteam",
+   "jobs": 65,
+   "israel_jobs": 18
+  },
+  {
+   "name": "Forter",
+   "ats": "greenhouse",
+   "slug": "forter",
+   "jobs": 22,
+   "israel_jobs": 5
+  },
+  {
+   "name": "Gong",
+   "ats": "greenhouse",
+   "slug": "gongio",
+   "jobs": 90,
+   "israel_jobs": 12
+  },
+  {
+   "name": "Guidde",
+   "ats": "greenhouse",
+   "slug": "guidde",
+   "jobs": 8,
+   "israel_jobs": 4
+  },
+  {
+   "name": "Island",
+   "ats": "greenhouse",
+   "slug": "island",
+   "jobs": 36,
+   "israel_jobs": 10
+  },
+  {
+   "name": "JFrog",
+   "ats": "greenhouse",
+   "slug": "jfrog",
+   "jobs": 74,
+   "israel_jobs": 21
+  },
+  {
+   "name": "Moon Active",
+   "ats": "ashby",
+   "slug": "moonactive",
+   "jobs": 34,
+   "israel_jobs": 25
+  },
+  {
+   "name": "NICE",
+   "ats": "greenhouse",
+   "slug": "nice",
+   "jobs": 172,
+   "israel_jobs": 18
+  },
+  {
+   "name": "Optimove",
+   "ats": "greenhouse",
+   "slug": "optimove",
+   "jobs": 8,
+   "israel_jobs": 1
+  },
+  {
+   "name": "Orca Security",
+   "ats": "greenhouse",
+   "slug": "orcasecurity",
+   "jobs": 9,
+   "israel_jobs": 2
+  },
+  {
+   "name": "Pagaya",
+   "ats": "greenhouse",
+   "slug": "pagayais",
+   "jobs": 8,
+   "israel_jobs": 8
+  },
+  {
+   "name": "Payoneer",
+   "ats": "greenhouse",
+   "slug": "payoneer",
+   "jobs": 104,
+   "israel_jobs": 25
+  },
+  {
+   "name": "Riskified",
+   "ats": "greenhouse",
+   "slug": "riskified",
+   "jobs": 37,
+   "israel_jobs": 15
+  },
+  {
+   "name": "SafeBreach",
+   "ats": "greenhouse",
+   "slug": "safebreach",
+   "jobs": 8,
+   "israel_jobs": 3
+  },
+  {
+   "name": "Salt Security",
+   "ats": "greenhouse",
+   "slug": "saltsecurity",
+   "jobs": 10,
+   "israel_jobs": 1
+  },
+  {
+   "name": "Similarweb",
+   "ats": "greenhouse",
+   "slug": "similarweb",
+   "jobs": 61,
+   "israel_jobs": 27
+  },
+  {
+   "name": "Taboola",
+   "ats": "greenhouse",
+   "slug": "taboola",
+   "jobs": 89,
+   "israel_jobs": 29
+  },
+  {
+   "name": "Torq",
+   "ats": "greenhouse",
+   "slug": "torq",
+   "jobs": 20,
+   "israel_jobs": 2
+  },
+  {
+   "name": "Transmit Security",
+   "ats": "greenhouse",
+   "slug": "transmitsecurity",
+   "jobs": 10,
+   "israel_jobs": 9
+  },
+  {
+   "name": "Via",
+   "ats": "greenhouse",
+   "slug": "via",
+   "jobs": 176,
+   "israel_jobs": 10
+  },
+  {
+   "name": "WalkMe",
+   "ats": "lever",
+   "slug": "walkme",
+   "jobs": 20,
+   "israel_jobs": 5
+  },
+  {
+   "name": "Wiz",
+   "ats": "greenhouse",
+   "slug": "wizinc",
+   "jobs": 115,
+   "israel_jobs": 25
+  },
+  {
+   "name": "Yotpo",
+   "ats": "greenhouse",
+   "slug": "yotpo",
+   "jobs": 18,
+   "israel_jobs": 6
+  }
+ ]
+}
