@@ -5,7 +5,7 @@ and sends **one Telegram message per new job** (title, company, place, short sum
 "Good to know" box, link, and a "Redefine jobs" button). Runs free on GitHub Actions.
 
 - GitHub repo: `MatarCalif72/job-radar` (public, branch `main`)
-- Local folder: `C:\Users\matar\OneDrive\Desktop\job-radar` (NOT a git repo yet, see "Open items")
+- Local folder: `C:\Users\matar\OneDrive\Desktop\job-radar` (git repo, tracks `origin/main`). Note: the home folder `C:\Users\matar` is also a git repo, so always run git from inside this folder.
 - Owner prefers short, plain-language answers.
 
 ## How it works
@@ -29,8 +29,7 @@ and sends **one Telegram message per new job** (title, company, place, short sum
 - The page in `docs/` (served by GitHub Pages from `/docs`) saves `my_search.json` through the GitHub API with a token kept only in the browser.
 
 ## Open items
-- Local folder has no `.git`. Connect it to the GitHub repo (git init, remote add origin, fetch, `git reset origin/main`, then `git checkout origin/main -- data/seen.json`, add, commit, push). Delete the stray old `job-radar/job-radar` subfolder first.
-- `.github/workflows/discover.yml` must exist in the repo (tools could not write into `.github` on Windows).
+- Before pushing, `git pull` first: the bot and the Redefine page commit `data/seen.json` and `my_search.json` to GitHub.
 - Run **discover-companies** in the Actions tab, read the log (`FOUND` lines and the "No board found" list), then run **job-radar**.
 - If many wanted companies land in "No board found" (Comeet, Workable or own career sites), add support for those job systems.
 - Not verified against the real services (the build environment was offline): the board names in `config.toml` (only Snyk confirmed), and the `greenhouse-eu` API address.
